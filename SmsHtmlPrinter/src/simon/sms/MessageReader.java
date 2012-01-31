@@ -1,9 +1,11 @@
 package simon.sms;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.charset.Charset;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -13,7 +15,17 @@ public class MessageReader {
 	public static Collection<Message> read(File file, Charset cs) throws IOException {
 		List<Message> messages = new ArrayList<Message>();
 		
-		List<String> lines = Files.readAllLines(file.toPath(), cs);
+		List<String> lines = new ArrayList<String>();
+		BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), cs));
+		try {
+			String line = null;
+			while ((line = reader.readLine()) != null) {
+				lines.add(line);
+			}
+		} finally {
+			reader.close();
+		}
+		
 		for (int i = 0; i < lines.size(); i++) {
 			String line = lines.get(i);
 			if (line.length() == 0) {

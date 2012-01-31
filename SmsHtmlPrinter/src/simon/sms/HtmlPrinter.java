@@ -1,13 +1,15 @@
 package simon.sms;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.net.URL;
 import java.nio.charset.Charset;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
@@ -46,7 +48,15 @@ public class HtmlPrinter {
 		String fileName = String.format("sms-%04d%02d%02d.html", 
 				cal.get(Calendar.YEAR), cal.get(Calendar.MONTH) + 1, cal.get(Calendar.DAY_OF_MONTH));
 		File outFile = new File(fileName);
-		Files.write(outFile.toPath(), contents, cs);
+		BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(outFile), cs));
+		try {
+			for (String content : contents) {
+				writer.write(content);
+				writer.newLine();
+			}
+		} finally {
+			writer.close();
+		}
 	}
 	
 	// parse the files with name pattern sms-*.txt in the current folder,

@@ -131,7 +131,7 @@
 			sidInput.addEventListener("blur", ttt, true);
 			sidInput.addEventListener("keyup", ttt, true);
 		}
-		
+		localStorage.bookmarks = "";
 		// add bookmarks if the browser supports HTML5 localStorage
 		if (typeof(localStorage) == "undefined") {
 			$("marks").style.display = "none";
@@ -164,6 +164,13 @@
 				if (names[i] == id) { duplicated = true; break;}
 			}
 			if (!duplicated) {
+				if ($("marks").style.display == "none") {
+					var st = document.createElement("option");
+					st.innerHTML = "";
+					st.value = "";
+					$("marks").appendChild(st);
+					$("marks").style.display = "";
+				}
 				localStorage.bookmarks += "^" + id;
 				var st = document.createElement("option");
 				st.innerHTML = id;
