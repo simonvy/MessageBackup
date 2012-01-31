@@ -42,26 +42,32 @@
 		subrecords = subr;
 		currentPage = 0;
 		showPage(currentPage);
-		document.getElementById("count_span").innerHTML = "" + subrecords.length + "/" + records.length;
-		document.getElementById("pages").style.display = 
+		$("count_span").innerHTML = "" + subrecords.length + "/" + records.length;
+		$("pages").style.display = 
 			(Math.ceil(subrecords.length / pagesize) <= 1) ? "none" : "block";
 	}
 	
 	function showPage(page) {
 		if (page < 0 || page >= Math.ceil(subrecords.length / pagesize)) {
+			if (subrecords.length == 0) { clearTable();}
 			return;
 		}
-		var recordtable = document.getElementById("records");
-		var line = recordtable.children.length;
-		while(line -- > 0) {
-			recordtable.removeChild(recordtable.lastChild);
-		}
+		clearTable();
+		var recordtable = $("records");
 		for(var i = pagesize * page; i < subrecords.length && i < pagesize * (page + 1); i++) {
 			recordtable.appendChild(subrecords[i].$tbody);
 		}
 		currentPage = page;
-		document.getElementById("pageInfo").innerHTML = 
+		$("pageInfo").innerHTML = 
 			"(" + (currentPage + 1) + "/" + Math.ceil(subrecords.length / pagesize) + ")";
+	}
+	
+	function clearTable() {
+		var recordtable = $("records");
+		var line = recordtable.children.length;
+		while(line -- > 0) {
+			recordtable.removeChild(recordtable.lastChild);
+		}
 	}
 	
 	function s(object, newkind) {
@@ -69,7 +75,7 @@
 		search();
 		object.style.textDecoration = "underline";
 		for(var i = 2; i < arguments.length; i++) {
-			document.getElementById(arguments[i]).style.textDecoration = "none";
+			$(arguments[i]).style.textDecoration = "none";
 		}
 	}
 	
@@ -80,10 +86,10 @@
 	}
 	
 	function search() {
-		var id = document.getElementById("searchID").value;
+		var id = $("searchID").value;
+		if (id != $("marks").value) setMarkValueWithoutEvent("");
 		if(prev_kind == kind && prev_kw == id) return; else { prev_kind = kind; prev_kw = id; }
 		var subr = [];
-		var k = id.length;
 		for(var i=0; i<records.length; i++) {
 			var r = records[i];
 			if((kind == -1 || kind == r.rv) && r.name.indexOf(id) >= 0) {
@@ -93,11 +99,26 @@
 		show(subr);
 	}
 	
+	function setMarkValueWithoutEvent(value) {
+		var marks = $("marks");
+		if(document.all){	
+			marks.detachEvent("onchange", renderMark);
+		} else {
+			marks.removeEventListener("change", renderMark, true);
+		}
+		marks.value = value;
+		if(document.all){	
+			marks.attachEvent("onchange", renderMark);
+		} else {
+			marks.addEventListener("change", renderMark, true);
+		}
+	}
+	
 	function init() {
 //$
-		document.getElementById("send").style.backgroundColor = sendcolor;
-		document.getElementById("recv").style.backgroundColor = recvcolor;
-		document.getElementById("all").style.textDecoration = "underline";
+		$("send").style.backgroundColor = sendcolor;
+		$("recv").style.backgroundColor = recvcolor;
+		$("all").style.textDecoration = "underline";
 		show(records);
 	
 		var sidInput = document.getElementById("searchID");
@@ -110,7 +131,56 @@
 			sidInput.addEventListener("blur", ttt, true);
 			sidInput.addEventListener("keyup", ttt, true);
 		}
+		
+		// add bookmarks if the browser supports HTML5 localStorage
+		if (typeof(localStorage) == "undefined") {
+			$("marks").style.display = "none";
+			$("markBtn").style.display = "none";
+		} else {
+			if (typeof(localStorage.bookmarks) == "undefined") {
+				localStorage.bookmarks = "";
+			}
+			if (localStorage.bookmarks.length > 0) {
+				var names = localStorage.bookmarks.split("^");
+				for (var i = 0; i < names.length; i++) {
+					var st = document.createElement("option");
+					st.innerHTML = names[i];
+					st.value = names[i];
+					$("marks").appendChild(st);
+				}
+			} else {
+				$("marks").style.display = "none";
+			}
+		}
+		// 
 	}
+	
+	function addMark() {
+		var id = $("searchID").value;
+		if (id.length > 0) {
+			var duplicated = false;
+			var names = localStorage.bookmarks.split("^");
+			for (var i = 0; i < names.length; i++) {
+				if (names[i] == id) { duplicated = true; break;}
+			}
+			if (!duplicated) {
+				localStorage.bookmarks += "^" + id;
+				var st = document.createElement("option");
+				st.innerHTML = id;
+				st.value = id;
+				$("marks").appendChild(st);
+			}
+			setMarkValueWithoutEvent(id);
+		}
+	}
+	
+	function renderMark() {
+		$("searchID").value = $("marks").value;
+		s($("all"), -1, 'send', 'recv');
+	}
+	
+	function $(id) { return document.getElementById(id); }
+	
 </script>
 </head>
 <body onLoad="init();">
@@ -118,6 +188,7 @@
 <tr><td>
 <span id="search_span">请输入联系人查找 <input type="text" id="searchID" onChange="ttt();" /></span> <i>(<span id="count_span">0/0</span>)
 (<span id="all" onClick="s(this, -1, 'send', 'recv');">全部</span>/<span id="send" onClick="s(this, 0, 'all', 'recv');">发送</span>/<span id="recv" onClick="s(this, 1, 'all', 'send');">接收</span>)</i>
+<select id="marks" onChange="renderMark();"/> <input type="button" id="markBtn" onClick="addMark();" value="新书签"></input>
 </td><td id="pages" align="right" width="20%">
 <i><span onClick="showPage(currentPage - 1);">上一页</span>|<span onClick="showPage(currentPage + 1);">下一页</span> <span id="pageInfo"></span></i>
 </td></tr></table><hr />
