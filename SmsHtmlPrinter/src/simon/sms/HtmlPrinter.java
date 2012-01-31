@@ -1,0 +1,79 @@
+package simon.sms;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FilenameFilter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.regex.Pattern;
+
+public class HtmlPrinter {
+
+	public static final Charset cs = Charset.forName("UTF8");
+	
+	public static void main(String[] args) throws IOException {
+		List<String> contents = new ArrayList<String>();
+
+		BufferedReader reader = new BufferedReader(new InputStreamReader(
+				HtmlPrinter.class.getClassLoader().getResourceAsStream("simon/sms/html_template.html"), cs
+		));
+		
+		try {
+			String line = null;
+			while ((line = reader.readLine()) != null) {
+				if ("//$".equals(line)) {
+					Collection<Message> messages = getMessages();
+					for (Message message : messages) {
+						contents.add(message.toString());
+					}
+				} else {
+					contents.add(line);
+				}
+			}
+		} finally {
+			reader.close();
+		}
+		
+		Calendar cal = Calendar.getInstance();
+		String fileName = String.format("sms-%04d%02d%02d.html", 
+				cal.get(Calendar.YEAR), cal.get(Calendar.MONTH) + 1, cal.get(Calendar.DAY_OF_MONTH));
+		File outFile = new File(fileName);
+		Files.write(outFile.toPath(), contents, cs);
+	}
+	
+	// parse the files with name pattern sms-*.txt in the current folder,
+	// return the messages sorted by date.
+	private static Collection<Message> getMessages() {
+		URL location = HtmlPrinter.class.getProtectionDomain().getCodeSource().getLocation();
+		File currentFolder = new File(location.getFile()).getParentFile();
+		
+		File[] messageFiles = currentFolder.listFiles(new FilenameFilter() {
+			private Pattern p = Pattern.compile("^sms-\\d+.txt$");
+			@Override
+			public boolean accept(File dir, String name) {
+				return p.matcher(name).matches();
+			}
+		});
+		
+		List<Message> messages = new ArrayList<Message>();
+		if (messageFiles != null) {
+			for (File messageFile : messageFiles) {
+				try {
+					messages.addAll(MessageReader.read(messageFile, cs));
+				} catch(IOException e) {
+					e.printStackTrace(System.err);
+				}
+			}
+			Collections.sort(messages);
+		}
+		return messages;
+	}
+}

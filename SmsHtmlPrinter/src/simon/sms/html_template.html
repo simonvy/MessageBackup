@@ -1,0 +1,126 @@
+<html>
+<head>
+<meta http-equiv=content-type content="text/html; charset=utf-8">
+<script type="text/javascript">
+	var sendcolor = "wheat";
+	var recvcolor = "lavender";
+	
+	var records = [];
+	var kind = -1 /* - 1 : all, 0, sent, 1, recv */;
+	var prev_kind = -1, prev_kw = "";
+	
+	function a(dt, name, content, rv) {
+		records.push(new r(name, dt, content, rv == "recv"));
+	}
+	
+	function r(name, dt, content, rv) {
+		var $name = document.createElement("td");
+		$name.style.width = "6%";
+		$name.innerHTML = name;
+		var $datetime = document.createElement("td");
+		$datetime.style.width="16%";
+		$datetime.innerHTML = dt;
+		var $content = document.createElement("td");
+		$content.innerHTML = content;
+		var newtr = document.createElement("tr");
+		newtr.appendChild($name);
+		newtr.appendChild($datetime);
+		newtr.appendChild($content);
+		newtr.style.backgroundColor = rv ? recvcolor : sendcolor;
+		this.name = name;
+		this.rv = (rv ? 1 : 0);
+		this.$tbody = document.createElement("tbody");
+		this.$tbody.appendChild(newtr);
+		return this;
+	}
+	
+	var currentPage;
+	var subrecords;
+	var pagesize = 1200;
+	
+	function show(subr) {
+		subrecords = subr;
+		currentPage = 0;
+		showPage(currentPage);
+		document.getElementById("count_span").innerHTML = "" + subrecords.length + "/" + records.length;
+		document.getElementById("pages").style.display = 
+			(Math.ceil(subrecords.length / pagesize) <= 1) ? "none" : "block";
+	}
+	
+	function showPage(page) {
+		if (page < 0 || page >= Math.ceil(subrecords.length / pagesize)) {
+			return;
+		}
+		var recordtable = document.getElementById("records");
+		var line = recordtable.children.length;
+		while(line -- > 0) {
+			recordtable.removeChild(recordtable.lastChild);
+		}
+		for(var i = pagesize * page; i < subrecords.length && i < pagesize * (page + 1); i++) {
+			recordtable.appendChild(subrecords[i].$tbody);
+		}
+		currentPage = page;
+		document.getElementById("pageInfo").innerHTML = 
+			"(" + (currentPage + 1) + "/" + Math.ceil(subrecords.length / pagesize) + ")";
+	}
+	
+	function s(object, newkind) {
+		kind = newkind;
+		search();
+		object.style.textDecoration = "underline";
+		for(var i = 2; i < arguments.length; i++) {
+			document.getElementById(arguments[i]).style.textDecoration = "none";
+		}
+	}
+	
+	var searchtimer;
+	function ttt() {
+		if (searchtimer) { clearTimeout(searchtimer); }
+		searchtimer = setTimeout(search, 3 * 100);
+	}
+	
+	function search() {
+		var id = document.getElementById("searchID").value;
+		if(prev_kind == kind && prev_kw == id) return; else { prev_kind = kind; prev_kw = id; }
+		var subr = [];
+		var k = id.length;
+		for(var i=0; i<records.length; i++) {
+			var r = records[i];
+			if((kind == -1 || kind == r.rv) && r.name.indexOf(id) >= 0) {
+				subr.push(r);
+			}
+		}
+		show(subr);
+	}
+	
+	function init() {
+//$
+		document.getElementById("send").style.backgroundColor = sendcolor;
+		document.getElementById("recv").style.backgroundColor = recvcolor;
+		document.getElementById("all").style.textDecoration = "underline";
+		show(records);
+	
+		var sidInput = document.getElementById("searchID");
+		if(document.all){	
+			sidInput.attachEvent("onfocus", ttt);
+			sidInput.attachEvent("onblur", ttt);
+			sidInput.attachEvent("onkeyup", ttt);
+		} else {
+			sidInput.addEventListener("focus", ttt, true);
+			sidInput.addEventListener("blur", ttt, true);
+			sidInput.addEventListener("keyup", ttt, true);
+		}
+	}
+</script>
+</head>
+<body onLoad="init();">
+<table width="100%">
+<tr><td>
+<span id="search_span">请输入联系人查找 <input type="text" id="searchID" onChange="ttt();" /></span> <i>(<span id="count_span">0/0</span>)
+(<span id="all" onClick="s(this, -1, 'send', 'recv');">全部</span>/<span id="send" onClick="s(this, 0, 'all', 'recv');">发送</span>/<span id="recv" onClick="s(this, 1, 'all', 'send');">接收</span>)</i>
+</td><td id="pages" align="right" width="20%">
+<i><span onClick="showPage(currentPage - 1);">上一页</span>|<span onClick="showPage(currentPage + 1);">下一页</span> <span id="pageInfo"></span></i>
+</td></tr></table><hr />
+<table id="records" width="100%"/>
+</body>
+</html>
