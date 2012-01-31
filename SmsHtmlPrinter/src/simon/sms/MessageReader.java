@@ -44,7 +44,15 @@ public class MessageReader {
 			if (parts.length != 4) {
 				System.out.println("(" + parts.length + ")" + line);
 			} else {
-				messages.add(new Message(parts[1], parts[0], parts[2], parts[3]));
+				String separator = ";";
+				if (parts[1].contains(separator)) {
+					for (String address : parts[1].split(separator)) {
+						address = address.trim();
+						messages.add(new Message(address, parts[0], parts[2], parts[3]));
+					}
+				} else {
+					messages.add(new Message(parts[1], parts[0], parts[2], parts[3]));
+				}
 			}
 		}
 		
