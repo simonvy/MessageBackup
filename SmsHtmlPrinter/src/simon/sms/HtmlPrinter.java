@@ -8,6 +8,7 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.io.PrintStream;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
@@ -21,7 +22,24 @@ public class HtmlPrinter {
 
 	public static final Charset cs = Charset.forName("UTF8");
 	
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) {
+		PrintStream log = null;
+		try {
+			log = new PrintStream(new FileOutputStream("log.txt"));
+			System.setOut(log);
+			main0(args);
+		} catch(Exception e) {
+			if (log != null) {
+				e.printStackTrace();
+			}
+		} finally {
+			if (log != null) {
+				log.close();
+			}
+		}
+	}
+	
+	public static void main0(String[] args) throws IOException {
 		List<String> contents = new ArrayList<String>();
 
 		BufferedReader reader = new BufferedReader(new InputStreamReader(
@@ -76,10 +94,11 @@ public class HtmlPrinter {
 		List<Message> messages = new ArrayList<Message>();
 		if (messageFiles != null) {
 			for (File messageFile : messageFiles) {
+				System.out.println("Parsing " + messageFile.getPath());
 				try {
 					messages.addAll(MessageReader.read(messageFile, cs));
 				} catch(IOException e) {
-					e.printStackTrace(System.err);
+					e.printStackTrace();
 				}
 			}
 			Collections.sort(messages);

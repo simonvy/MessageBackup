@@ -42,7 +42,7 @@ public class MessageReader {
 			}
 			String[] parts = line.split("'");
 			if (parts.length != 4) {
-				System.err.println(line);
+				System.out.println("(" + parts.length + ")" + line);
 			} else {
 				messages.add(new Message(parts[1], parts[0], parts[2], parts[3]));
 			}
