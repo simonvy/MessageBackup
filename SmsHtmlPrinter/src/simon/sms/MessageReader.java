@@ -1,10 +1,7 @@
 package simon.sms;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -15,16 +12,7 @@ public class MessageReader {
 	public static Collection<Message> read(File file, Charset cs) throws IOException {
 		List<Message> messages = new ArrayList<Message>();
 		
-		List<String> lines = new ArrayList<String>();
-		BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), cs));
-		try {
-			String line = null;
-			while ((line = reader.readLine()) != null) {
-				lines.add(line);
-			}
-		} finally {
-			reader.close();
-		}
+		List<String> lines = FileOps.read(file, cs);
 		
 		for (int i = 0; i < lines.size(); i++) {
 			String line = lines.get(i);
@@ -42,7 +30,7 @@ public class MessageReader {
 			}
 			String[] parts = line.split("'");
 			if (parts.length != 4) {
-				System.out.println("(" + parts.length + ")" + line);
+				System.err.println("(" + parts.length + ")" + line);
 			} else {
 				String separator = ";";
 				if (parts[1].contains(separator)) {
