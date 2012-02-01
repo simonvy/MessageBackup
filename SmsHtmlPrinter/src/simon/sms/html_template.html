@@ -60,6 +60,9 @@
 		currentPage = page;
 		$("pageInfo").innerHTML = 
 			"(" + (currentPage + 1) + "/" + Math.ceil(subrecords.length / pagesize) + ")";
+		if (document.body.scrollTop > 0) {
+			document.body.scrollTop = 0;
+		}
 	}
 	
 	function clearTable() {
@@ -152,7 +155,20 @@
 				$("marks").style.display = "none";
 			}
 		}
-		// 
+		//
+		var kbhandler = function(event) {
+			if (event.keyCode == 39) {
+				showPage(currentPage + 1);
+			}
+			if (event.keyCode == 37) {
+				showPage(currentPage - 1);
+			}
+		};
+		if(document.all){	
+			document.attachEvent("onkeyup", kbhandler);
+		} else {
+			document.addEventListener("keyup", kbhandler, true);
+		}
 	}
 	
 	function addMark() {
