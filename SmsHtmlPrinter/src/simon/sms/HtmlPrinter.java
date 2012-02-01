@@ -9,7 +9,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintStream;
+import java.io.UnsupportedEncodingException;
 import java.net.URL;
+import java.net.URLDecoder;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -80,8 +82,18 @@ public class HtmlPrinter {
 	// parse the files with name pattern sms-*.txt in the current folder,
 	// return the messages sorted by date.
 	private static Collection<Message> getMessages() {
+		List<Message> messages = new ArrayList<Message>();
+		
 		URL location = HtmlPrinter.class.getProtectionDomain().getCodeSource().getLocation();
-		File currentFolder = new File(location.getFile()).getParentFile();
+		String parent = new File(location.getFile()).getParent();
+		try {
+			parent = URLDecoder.decode(parent, cs.name());
+		} catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+			return messages;
+		}
+		
+		File currentFolder = new File(parent);
 		
 		File[] messageFiles = currentFolder.listFiles(new FilenameFilter() {
 			private Pattern p = Pattern.compile("^sms-\\d+.txt$");
@@ -91,7 +103,7 @@ public class HtmlPrinter {
 			}
 		});
 		
-		List<Message> messages = new ArrayList<Message>();
+		
 		if (messageFiles != null) {
 			for (File messageFile : messageFiles) {
 				System.out.println("Parsing " + messageFile.getPath());
