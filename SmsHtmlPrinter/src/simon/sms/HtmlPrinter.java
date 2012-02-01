@@ -1,5 +1,6 @@
 package simon.sms;
 
+import java.awt.Desktop;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -21,9 +22,14 @@ import java.util.regex.Pattern;
 public class HtmlPrinter {
 
 	private static final Charset cs = Charset.forName("UTF8");
-	private static final Calendar cal = Calendar.getInstance();
+	private static File output;
 	
 	public static void main(String[] args) {
+		Calendar cal = Calendar.getInstance();
+		String fileName = String.format("sms-%04d%02d%02d.html", 
+				cal.get(Calendar.YEAR), cal.get(Calendar.MONTH) + 1, cal.get(Calendar.DAY_OF_MONTH));
+		output = new File(fileName);
+		
 		PrintStream err = System.err;
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		System.setErr(new PrintStream(baos));
@@ -39,7 +45,17 @@ public class HtmlPrinter {
 		String errors = new String(baos.toByteArray());
 		if (errors.length() > 0) {
 			try {
-				FileOps.write(getOutputFile(), cs, errors);
+				FileOps.write(output, cs, errors);
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+		}
+		
+		// open the file with default browser
+		if (Desktop.isDesktopSupported()) {
+			Desktop desktop = Desktop.getDesktop();
+			try {
+				desktop.browse(output.toURI());
 			} catch (IOException e) {
 				throw new RuntimeException(e);
 			}
@@ -74,13 +90,7 @@ public class HtmlPrinter {
 			reader.close();
 		}
 		
-		FileOps.write(getOutputFile(), cs, contents);
-	}
-	
-	private static File getOutputFile() {
-		String fileName = String.format("sms-%04d%02d%02d.html", 
-				cal.get(Calendar.YEAR), cal.get(Calendar.MONTH) + 1, cal.get(Calendar.DAY_OF_MONTH));
-		return new File(fileName);
+		FileOps.write(output, cs, contents);
 	}
 	
 	// parse the files with name pattern sms-*.txt in the current folder,
