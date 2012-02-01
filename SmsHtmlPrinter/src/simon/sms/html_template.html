@@ -43,8 +43,8 @@
 		currentPage = 0;
 		showPage(currentPage);
 		$("count_span").innerHTML = "" + subrecords.length + "/" + records.length;
-		$("pages").style.display = 
-			(Math.ceil(subrecords.length / pagesize) <= 1) ? "none" : "block";
+		$("pages").style.visibility = 
+			(Math.ceil(subrecords.length / pagesize) <= 1) ? "hidden" : "visible";
 	}
 	
 	function showPage(page) {
@@ -136,10 +136,8 @@
 		}
 		
 		// add bookmarks if the browser supports HTML5 localStorage
-		if (typeof(localStorage) == "undefined") {
-			$("marks").style.display = "none";
-			$("markBtn").style.display = "none";
-		} else {
+		if (typeof(localStorage) != "undefined") {
+			$("markBtn").style.visibility = "visible";
 			if (typeof(localStorage.bookmarks) == "undefined") {
 				localStorage.bookmarks = "";
 			}
@@ -151,8 +149,7 @@
 					st.value = names[i];
 					$("marks").appendChild(st);
 				}
-			} else {
-				$("marks").style.display = "none";
+				$("marks").style.visibility = "visible";
 			}
 		}
 		//
@@ -180,12 +177,12 @@
 				if (names[i] == id) { duplicated = true; break;}
 			}
 			if (!duplicated) {
-				if ($("marks").style.display == "none") {
+				if ($("marks").style.visibility == "hidden") {
 					var st = document.createElement("option");
 					st.innerHTML = "";
 					st.value = "";
 					$("marks").appendChild(st);
-					$("marks").style.display = "";
+					$("marks").style.visibility = "visible";
 				}
 				localStorage.bookmarks += "^" + id;
 				var st = document.createElement("option");
@@ -211,8 +208,8 @@
 <tr><td>
 <span id="search_span">请输入联系人查找 <input type="text" id="searchID" onChange="ttt();" /></span> <i>(<span id="count_span">0/0</span>)
 (<span id="all" onClick="s(this, -1, 'send', 'recv');">全部</span>/<span id="send" onClick="s(this, 0, 'all', 'recv');">发送</span>/<span id="recv" onClick="s(this, 1, 'all', 'send');">接收</span>)</i>
-<select id="marks" onChange="renderMark();"/> <input type="button" id="markBtn" onClick="addMark();" value="新书签"></input>
-</td><td id="pages" align="right" width="20%">
+<select id="marks" onChange="renderMark();" style="visibility:hidden" /> <input type="button" id="markBtn" onClick="addMark();" value="新书签" style="visibility:hidden"></input>
+</td><td id="pages" align="right" width="20%" style="visibility:hidden">
 <i><span onClick="showPage(currentPage - 1);">上一页</span>|<span onClick="showPage(currentPage + 1);">下一页</span> <span id="pageInfo"></span></i>
 </td></tr></table><hr />
 <table id="records" width="100%"/>
