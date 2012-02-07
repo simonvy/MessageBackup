@@ -1,5 +1,6 @@
 package simon.android;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -89,19 +90,14 @@ public class SmsBackupActivity extends Activity {
     	}
     	Collections.sort(messages);
     	
-    	appendProgress(String.format("Find %d messages.", messages.size()));
-    	
-    	StringBuilder builder = new StringBuilder();
-    	for (Message message : messages) {
-    		builder.append(message);
-    		builder.append("\n");
-    	}
-    	
-		FileWriter writer = null;
-		
+		BufferedWriter writer = null;
 		try {
-			writer = new FileWriter(file);
-			writer.write(builder.toString());
+			appendProgress(String.format("Find %d messages.", messages.size()));
+			writer = new BufferedWriter(new FileWriter(file));
+			for (Message message : messages) {
+				writer.write(message.toString());
+				writer.newLine();
+	    	}
 			appendProgress("Done @" + file.getAbsolutePath());
 			return true;
 		} catch(IOException e) {
