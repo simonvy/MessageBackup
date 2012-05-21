@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">短信备份</string>
+    <string name="introduction">短信备份文件发送到电子邮箱:</string>
+    <string name="subject">备份的短信 %1$s-%2$s-%3$s</string>
+    <string name="emailnote">通过电子邮件发送.</string>
+    <string name="backupButton">备份</string>
+    <string name="savefailed">保存到存储卡失败.</string>
+    <string name="numOfMessages">共备份 %1$s 条短信.</string>
+    <string name="finishMessage">备份文件也被保存到了存储卡: </string>
+    
+
+</resources>

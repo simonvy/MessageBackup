@@ -1,9 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">SmsBackup</string>
-    <string name="introduction">Hey bro, this app will backup your messages and keep them by email!</string>
+    <string name="app_name">Message Backup</string>
+    <string name="introduction">Send backup message files to email:</string>
     <string name="subject">Messages backup %1$s-%2$s-%3$s</string>
     <string name="emailnote">Send by email</string>
+    <string name="backupButton">Backup</string>
+    <string name="savefailed">Cannot write to the external storage.</string>
+    <string name="numOfMessages">Find %1$s messages.</string>
+    <string name="finishMessage">File also saved at path: </string>
     
 
 </resources>

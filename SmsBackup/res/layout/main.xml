@@ -20,7 +20,7 @@
         android:layout_alignParentRight="true"
         android:layout_below="@+id/TextView1"
         android:layout_marginTop="16dp"
-        android:text=" Backup " />
+        android:text="@string/backupButton" />
 
     <AutoCompleteTextView
         android:id="@+id/email"

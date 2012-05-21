@@ -78,7 +78,7 @@ public class SmsBackupActivity extends Activity {
 			}
 			notes.delete(0, notes.length());
     	} else {
-    		Toast.makeText(this, "Cannot write to the external storage.", toast_period).show();
+    		Toast.makeText(this, R.string.savefailed, toast_period).show();
     	}
 	}
 	
@@ -92,13 +92,17 @@ public class SmsBackupActivity extends Activity {
     	
 		BufferedWriter writer = null;
 		try {
-			appendProgress(String.format("Find %d messages.", messages.size()));
+			String format = this.getString(R.string.numOfMessages);
+			appendProgress(String.format(format, messages.size()));
+			
 			writer = new BufferedWriter(new FileWriter(file));
 			for (Message message : messages) {
 				writer.write(message.toString());
 				writer.newLine();
 	    	}
-			appendProgress("Done @" + file.getAbsolutePath());
+			
+			String pathInfo = this.getString(R.string.finishMessage);
+			appendProgress(pathInfo + file.getAbsolutePath());
 			return true;
 		} catch(IOException e) {
 			appendProgress(e.getMessage());
